@@ -96,4 +96,10 @@ DELIVERY_FEE_TIERS = env("DELIVERY_FEE_TIERS", default="5:3,10:5,999:8")
 
 
 # Free delivery threshold (cart total after discount); set empty or 0 to disable
-FREE_DELIVERY_THRESHOLD = env.decimal('FREE_DELIVERY_THRESHOLD', default=0)
+from decimal import Decimal
+
+try:
+    FREE_DELIVERY_THRESHOLD = Decimal(str(env.float('FREE_DELIVERY_THRESHOLD', default=0)))
+except Exception:
+    FREE_DELIVERY_THRESHOLD = Decimal('0')
+
