@@ -175,10 +175,6 @@ if fulfillment == 'delivery':
 order.delivery_fee = delivery_fee
 order.save(update_fields=['delivery_fee'])
 
-
-         # send_order_received(order)
-            except Exception: pass
-
             grand_total = Decimal(order.total) - (order.discount_amount or Decimal('0.00')) + (order.delivery_fee or Decimal('0.00'))
             if grand_total < 0: grand_total = Decimal('0.00')
             try:
