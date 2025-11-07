@@ -175,14 +175,18 @@ if fulfillment == 'delivery':
 order.delivery_fee = delivery_fee
 order.save(update_fields=['delivery_fee'])
 
-            grand_total = Decimal(order.total) - (order.discount_amount or Decimal('0.00')) + (order.delivery_fee or Decimal('0.00'))
-            if grand_total < 0: grand_total = Decimal('0.00')
-            try:
-                pay_url = create_payment_link(order.id, grand_total, currency="USD")
-                return HttpResponseRedirect(pay_url)
-            except Exception as e:
-                messages.error(request, f"Payment error: {e}")
-                return redirect('thanks', order_id=order.id)
+       # ---- compute final amount and create payment link ----
+grand_total = Decimal(order.total) - (order.discount_amount or Decimal('0.00')) + (order.delivery_fee or Decimal('0.00'))
+if grand_total < Decimal('0.00'):
+    grand_total = Decimal('0.00')
+try:
+    pay_url = create_payment_link(order.id, grand_total, currency="USD")
+    return HttpResponseRedirect(pay_url)
+except Exception as e:
+    messages.error(request, f"Payment error: {e}")
+    return redirect('thanks', order_id=order.id)
+# ---- end payment block ----
+
     else:
         form = CheckoutForm()
         # populate pickup slots (today+tomorrow)
