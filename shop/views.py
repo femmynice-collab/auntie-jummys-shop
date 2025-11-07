@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.conf import settings
@@ -174,7 +175,8 @@ if fulfillment == 'delivery':
         delivery_fee = Decimal(rate.fee).quantize(Decimal('0.01'))
 order.delivery_fee = delivery_fee
 order.save(update_fields=['delivery_fee'])
-return redirect('thanks', order_id=order.id
+return redirect('thanks', order_id=order.id)
+
 # ---- end payment block ----
 else:
     form = CheckoutForm()
