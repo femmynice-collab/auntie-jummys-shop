@@ -186,12 +186,12 @@ except Exception as e:
     messages.error(request, f"Payment error: {e}")
     return redirect('thanks', order_id=order.id)
 # ---- end payment block ----
-
-    else:
-        form = CheckoutForm()
-        # populate pickup slots (today+tomorrow)
-        form.fields['pickup_slot'].choices = _pickup_slots(timezone.localtime())
+else:
+    form = CheckoutForm()
+    form.fields['pickup_slot'].choices = _pickup_slots(timezone.localtime())
     return render(request, 'shop/checkout.html', {'form': form})
+
+    
 
 def thanks(request, order_id):
     order = get_object_or_404(Order, id=order_id)
