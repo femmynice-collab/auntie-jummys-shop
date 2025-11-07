@@ -178,10 +178,6 @@ order.save(update_fields=['delivery_fee'])
 return redirect('thanks', order_id=order.id)
 
 # ---- end payment block ----
-else:
-    form = CheckoutForm()
-    form.fields['pickup_slot'].choices = _pickup_slots(timezone.localtime())
-    return render(request, 'shop/checkout.html', {'form': form})
 
     
 
