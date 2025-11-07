@@ -176,7 +176,6 @@ order.delivery_fee = delivery_fee
 order.save(update_fields=['delivery_fee'])
 
 
-            request.session['cart'] = {}
             try: send_order_received(order)
             except Exception: pass
 
