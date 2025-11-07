@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2 class="fw-bold">Your Cart</h2>
+  {% if items %}
+    <table class="table align-middle">
+      <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th><th></th></tr></thead>
+      <tbody>
+        {% for line in items %}
+          <tr>
+            <td>{{ line.product.name }}</td>
+            <td>{{ line.quantity }}</td>
+            <td>${{ line.product.price }}</td>
+            <td>${{ line.subtotal }}</td>
+            <td><a href="/cart/remove/{{ line.product.id }}/" class="btn btn-sm btn-outline-danger">Remove</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="d-flex justify-content-between">
+      <strong>Total: ${{ total }}</strong>
+      <a href="/checkout/" class="btn btn-success">Checkout</a>
+    </div>
+  {% else %}
+    <p>Your cart is empty.</p>
+  {% endif %}
+{% endblock %}

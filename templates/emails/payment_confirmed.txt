@@ -1,0 +1,18 @@
+Hi {{ order.customer_name }},
+
+Great news — we received your payment for order #{{ order.id }}.
+We’re packing your snacks and will deliver during our posted windows.
+
+Order total: ${{ order.total }}
+
+— Auntie Jummy’s Candy & Snacks
+
+Fulfillment: {{ order.fulfillment_method|title }}{% if order.fulfillment_method == 'pickup' and order.pickup_note %} — Note: {{ order.pickup_note }}{% endif %}
+
+{% if order.pickup_at %}Pickup time: {{ order.pickup_at|date:'D, M d @ h:i A' }}{% endif %}
+
+{% if order.delivery_fee %}Delivery fee: ${{ order.delivery_fee }}{% endif %}
+
+Store: {{ settings.STORE_ADDRESS }}
+Phone: {{ settings.STORE_PHONE }}
+Map: https://www.google.com/maps/search/?api=1&query={{ settings.STORE_ADDRESS|urlencode }}

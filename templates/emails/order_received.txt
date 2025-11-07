@@ -1,0 +1,20 @@
+Hi {{ order.customer_name }},
+
+Thanks for your order #{{ order.id }}!
+You'll be redirected to a secure Square payment page next to pay.
+
+Order total: ${{ order.total }}
+
+Delivery to: {{ order.address }}, {{ order.city }}, {{ order.state }} {{ order.zip_code }}
+
+— Auntie Jummy’s Candy & Snacks
+
+Fulfillment: {{ order.fulfillment_method|title }}{% if order.fulfillment_method == 'pickup' and order.pickup_note %} — Note: {{ order.pickup_note }}{% endif %}
+
+{% if order.pickup_at %}Pickup time: {{ order.pickup_at|date:'D, M d @ h:i A' }}{% endif %}
+
+{% if order.delivery_fee %}Delivery fee: ${{ order.delivery_fee }}{% endif %}
+
+Store: {{ settings.STORE_ADDRESS }}
+Phone: {{ settings.STORE_PHONE }}
+Map: https://www.google.com/maps/search/?api=1&query={{ settings.STORE_ADDRESS|urlencode }}

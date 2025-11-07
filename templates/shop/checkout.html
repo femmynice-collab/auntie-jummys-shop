@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2 class="fw-bold">Checkout</h2>
+  <p class="text-muted">Secure checkout powered by Square — add your Square keys in <code>.env</code>. You'll be redirected to a Square-hosted payment page.</p>
+  <form method="post" class="row g-3">
+    {% csrf_token %}
+    <div class='alert alert-info'>Choose <strong>Delivery</strong> (ZIP + hours enforced) or <strong>Local Pickup</strong> at the counter.</div>
+    {{ form.fulfillment_method.label_tag }} {{ form.fulfillment_method }}
+    {{ form.name.label_tag }} {{ form.name }}
+    {{ form.email.label_tag }} {{ form.email }}
+    {{ form.address.label_tag }} {{ form.address }}
+    {{ form.city.label_tag }} {{ form.city }}
+    {{ form.state.label_tag }} {{ form.state }}
+    {{ form.zip_code.label_tag }} {{ form.zip_code }}
+    {{ form.pickup_note.label_tag }} {{ form.pickup_note }}
+    {{ form.pickup_slot.label_tag }} {{ form.pickup_slot }}
+    {{ form.promo_code.label_tag }} {{ form.promo_code }}
+    <p class='small text-muted'>Promo code is optional. Examples: <code>WELCOME10</code>, <code>FREESHIP</code></p>
+    <div><button type="submit" class="btn btn-primary">Place Order</button></div>
+  </form>
+{% endblock %}

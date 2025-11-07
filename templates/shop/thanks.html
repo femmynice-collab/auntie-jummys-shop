@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="text-center py-5">
+    <h2 class="fw-bold">Thank you! 🎉</h2>
+    <p>Order <strong>#{{ order.id }}</strong> received. We’ll pack your snacks with care.</p>
+    <p class='text-muted'>Fulfillment: <strong>{{ order.fulfillment_method|title }}</strong>{% if order.fulfillment_method == 'pickup' and order.pickup_note %} — Note: {{ order.pickup_note }}{% endif %}</p>
+    <p class='small text-muted'>Store: {{ settings.STORE_ADDRESS }} — <a target='_blank' rel='noopener' href='https://www.google.com/maps/search/?api=1&query={{ settings.STORE_ADDRESS|urlencode }}'>Google Maps</a> — {{ settings.STORE_PHONE }}</p>
+    {% if order.pickup_at %}<p class='text-muted'>Pickup time: {{ order.pickup_at|date:'D, M d @ h:i A' }}</p>{% endif %}
+    {% if order.delivery_fee %}<p class='text-muted'>Delivery fee: ${{ order.delivery_fee }}</p>{% endif %}
+    {% if order.promo_code %}<p class="text-muted">Promo <strong>{{ order.promo_code }}</strong> applied. Discount: ${{ order.discount_amount }}</p>
+    <p class='text-muted'>Fulfillment: <strong>{{ order.fulfillment_method|title }}</strong>{% if order.fulfillment_method == 'pickup' and order.pickup_note %} — Note: {{ order.pickup_note }}{% endif %}</p>{% endif %}
+    <a href="/" class="btn btn-outline-primary">Continue shopping</a>
+  </div>
+{% endblock %}

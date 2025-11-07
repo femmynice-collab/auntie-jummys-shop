@@ -1,0 +1,23 @@
+body { font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
+:root{
+  --aj-primary:#feb9c2;
+  --aj-primary-600:#cc4e71;
+  --aj-light:#f6a0b1;
+}
+.btn-primary{ background-color: var(--aj-primary); border-color: var(--aj-primary-600); }
+.btn-primary:hover{ background-color: var(--aj-primary-600); border-color: var(--aj-primary-600); }
+.navbar{ background: var(--aj-light) !important; }
+a{ color: var(--aj-primary); }
+a:hover{ color: var(--aj-primary-600); }
+.card .btn{ border-radius: 12px; }
+.card{ border-radius: 16px; }
+.navbar-brand span{ color: var(--aj-primary-600); }
+
+/* Logo-derived palette: #feb9c2, #cc4e71, #f6a0b1, #fbe9e4, #d56e8a, #c63b63 */
+
+/* --- Auntie Jummy’s vibe tweaks --- */
+.btn, .form-control { border-radius: 9999px; }
+.card { border-radius: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); transition: transform .1s ease, box-shadow .2s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,0.08); }
+.navbar-brand img { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.form-control:focus { border-color: var(--aj-primary-600); box-shadow: 0 0 0 .2rem rgba(232,91,138,.15); }

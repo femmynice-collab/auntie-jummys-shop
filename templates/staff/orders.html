@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="fw-bold mb-0">Orders (latest)</h2>
+    <a href="{% url 'staff_export_csv' %}" class="btn btn-outline-secondary ms-auto">Export CSV</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr>
+        <th>ID</th><th>Date</th><th>Customer</th><th>Paid</th><th>Total</th><th>Fulfillment</th><th>Pickup</th><th></th>
+      </tr></thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>#{{ o.id }}</td>
+          <td>{{ o.created|date:"M d, H:i" }}</td>
+          <td>{{ o.customer_name }}<br><small class="text-muted">{{ o.email }}</small></td>
+          <td>{% if o.paid %}✅{% else %}❌{% endif %}</td>
+          <td>${{ o.total|floatformat:2 }}{% if o.delivery_fee %} + ${{ o.delivery_fee }}{% endif %}{% if o.discount_amount %} − ${{ o.discount_amount }}{% endif %}</td>
+          <td>{{ o.fulfillment_method|title }}</td>
+          <td>{% if o.pickup_at %}{{ o.pickup_at|date:"D, M d @ h:i A" }}{% endif %}</td>
+          <td><a class="btn btn-sm btn-primary" target="_blank" href="{% url 'staff_print' o.id %}">Print slip</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted">No orders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

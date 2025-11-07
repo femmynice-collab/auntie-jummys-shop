@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Packing Slip #{{ order.id }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    h1 { margin: 0 0 8px 0; }
+    .muted { color: #777; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px;}
+    th, td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+    .totals { margin-top: 12px; }
+    @media print { button { display:none; } }
+  </style>
+</head>
+<body>
+  <button onclick="window.print()">Print</button>
+  <h1>Packing Slip</h1>
+  <div class="muted">Order #{{ order.id }} — {{ order.created|date:"M d, Y H:i" }}</div>
+
+  <h3>Customer</h3>
+  <div>{{ order.customer_name }}</div>
+  <div>{{ order.email }}</div>
+  <div>{{ order.address }}, {{ order.city }}, {{ order.state }} {{ order.zip_code }}</div>
+  <div>Fulfillment: {{ order.fulfillment_method|title }}{% if order.pickup_at %} — Pickup: {{ order.pickup_at|date:"D, M d @ h:i A" }}{% endif %}</div>
+
+  <h3>Items</h3>
+  <table>
+    <thead><tr><th>Product</th><th>SKU</th><th>UPC</th><th>Allergens</th><th>Qty</th><th>Price</th><th>Line</th></tr></thead>
+    <tbody>
+      {% for it in order.items.all %}
+      <tr><td>{{ it.product.name }}</td><td>{{ it.product.sku }}</td><td>{{ it.product.upc }}</td><td>{{ it.product.allergens }}</td><td>{{ it.quantity }}</td><td>${{ it.price }}</td><td>${{ it.total }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <div>Subtotal: ${{ order.total }}</div>
+    {% if order.delivery_fee %}<div>Delivery fee: ${{ order.delivery_fee }}</div>{% endif %}
+    {% if order.discount_amount %}<div>Discount: -${{ order.discount_amount }}</div>{% endif %}
+  </div>
+</body>
+</html>
