@@ -83,101 +83,36 @@ def cart_remove(request, product_id):
     messages.info(request, "Item removed from cart.")
     return redirect('cart')
 
-def checkout(request):
-    cart = _get_cart(request.session)
-    if not cart:
-        messages.error(request, "Your cart is empty.")
-        return redirect('home')
-    if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            # apply promo
-            promo_obj = None
-            promo_code = form.cleaned_data.get('promo_code','').strip().upper()
-            if promo_code:
-                now = timezone.now()
-                try:
-                    pc = PromoCode.objects.get(code__iexact=promo_code, active=True)
-                    if (pc.starts and now < pc.starts) or (pc.ends and now > pc.ends):
-                        messages.error(request, 'Promo code is not active.'); return redirect('cart')
-                    if pc.usage_limit and pc.usage_count >= pc.usage_limit:
-                        messages.error(request, 'Promo code has reached its limit.'); return redirect('cart')
-                    promo_obj = pc
-                except PromoCode.DoesNotExist:
-                    messages.error(request, 'Invalid promo code.'); return redirect('cart')
-
-            # Delivery window/zone check (only if delivery)
-            fulfillment = form.cleaned_data.get('fulfillment_method','delivery')
-            if fulfillment == 'delivery':
-                now = timezone.localtime()
-                weekday = now.weekday()
-                if not DeliveryZone.objects.filter(postal_code=form.cleaned_data['zip_code']).exists():
-                    messages.error(request, 'Sorry, your ZIP code is outside our delivery area.')
-                    return redirect('cart')
-                allowed = False
-                for w in DeliveryWindow.objects.filter(weekday=weekday):
-                    start_dt = timezone.make_aware(datetime.combine(now.date(), w.start))
-                    end_dt = timezone.make_aware(datetime.combine(now.date(), w.end))
-                    if start_dt <= now <= end_dt: allowed = True; break
-                if not allowed:
-                    messages.error(request, 'We are currently outside our delivery window. Please try again during posted hours.')
-                    return redirect('cart')
-            now = timezone.localtime()
-            weekday = now.weekday()
-            if not DeliveryZone.objects.filter(postal_code=form.cleaned_data['zip_code']).exists():
-                messages.error(request, 'Sorry, your ZIP code is outside our delivery area.')
-                return redirect('cart')
-            allowed = False
-            for w in DeliveryWindow.objects.filter(weekday=weekday):
-                start_dt = timezone.make_aware(datetime.combine(now.date(), w.start))
-                end_dt = timezone.make_aware(datetime.combine(now.date(), w.end))
-                if start_dt <= now <= end_dt: allowed = True; break
-            if not allowed:
-                messages.error(request, 'We are currently outside our delivery window. Please try again during posted hours.')
-                return redirect('cart')
-
-            order = Order.objects.create(
-                customer_name=form.cleaned_data['name'],
-                email=form.cleaned_data['email'],
-                address=form.cleaned_data['address'],
-                city=form.cleaned_data['city'],
-                state=form.cleaned_data['state'],
-                zip_code=form.cleaned_data['zip_code'],
-                fulfillment_method=fulfillment,
-                pickup_note=form.cleaned_data.get('pickup_note',''),
-                paid=False
-            )
-            product_ids = [int(pid) for pid in cart.keys()]
-            for p in Product.objects.filter(id__in=product_ids):
-                qty = cart.get(str(p.id), 0)
-                OrderItem.objects.create(order=order, product=p, quantity=qty, price=p.price)
-                p.stock = max(0, p.stock - qty); p.save()
-
-            # compute discount
-            discount_amount = Decimal('0.00')
-            if promo_obj:
-                subtotal = Decimal(order.total)
-                if promo_obj.discount_type == PromoCode.PERCENT:
-                    discount_amount = (subtotal * (Decimal(promo_obj.value)/Decimal(100))).quantize(Decimal('0.01'))
-                else:
-                    discount_amount = Decimal(promo_obj.value).quantize(Decimal('0.01'))
-                if discount_amount > subtotal: discount_amount = subtotal
-                order.promo_code = promo_obj.code
-                order.discount_amount = discount_amount
-                order.save(update_fields=['promo_code','discount_amount'])
-                promo_obj.usage_count = (promo_obj.usage_count or 0) + 1
-                promo_obj.save(update_fields=['usage_count'])
-# delivery fee (by ZIP) if delivery
-delivery_fee = Decimal('0.00')
-if fulfillment == 'delivery':
-    rate = DeliveryRate.objects.filter(postal_code=form.cleaned_data['zip_code']).first()
-    if rate:
-        delivery_fee = Decimal(rate.fee).quantize(Decimal('0.01'))
-order.delivery_fee = delivery_fee
-order.save(update_fields=['delivery_fee'])
-return redirect('thanks', order_id=order.id)
 
 # ---- end payment block ----
+def checkout(request):
+    # Show the form on GET, process on POST
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+
+            # delivery fee (by ZIP) if delivery
+            delivery_fee = Decimal('0.00')
+            fulfillment = form.cleaned_data.get('fulfillment')
+            if fulfillment == 'delivery':
+                rate = DeliveryRate.objects.filter(
+                    postal_code=form.cleaned_data.get('zip_code')
+                ).first()
+                if rate:
+                    delivery_fee = Decimal(rate.fee).quantize(Decimal('0.01'))
+
+            order.delivery_fee = delivery_fee
+            order.save()
+
+            # TEMP: skip external payment; go to confirmation page
+            return redirect('thanks', order_id=order.id)
+    else:
+        form = CheckoutForm()
+        form.fields['pickup_slot'].choices = _pickup_slots(timezone.localtime())
+
+    # Render form if GET or if POST was invalid
+    return render(request, 'shop/checkout.html', {'form': form})
 
     
 
