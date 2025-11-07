@@ -52,11 +52,7 @@ def sync_from_square(request):
         messages.error(request, f"Square sync failed: {e}")
     return redirect('/admin/')
 
-def get_urls_with_sync(self):
-    urls = super(type(self), self).get_urls()
-    return [path('shop/sync-square/', sync_from_square, name='sync-square')] + urls
 
-admin.site.get_urls = get_urls_with_sync.__get__(admin.site, type(admin.site))
 
 # Add link on admin index
 from django.contrib.admin.sites import site as default_site
